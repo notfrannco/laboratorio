@@ -39,7 +39,7 @@
       when: server_groups == "all"
 
     - name: Deploy war
-      shell: "./jboss-cli.sh -c --controller={{ ansible_facts.default_ipv4.address}} --command='deploy --name={{ war | default('hello-world.war') }} --server-groups=server-group-A,server-group-B ' "
+      shell: "./jboss-cli.sh -c --controller={{ ansible_facts.default_ipv4.address}} --command='deploy --name={{ war | default('hello-world.war') }} --server-groups={{ item }} ' "
       args:
         chdir: "/opt/jboss-eap-7.0/bin/"
       loop: "{{ server_groups }}"
