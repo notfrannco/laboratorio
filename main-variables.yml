@@ -20,6 +20,7 @@
         chdir: "/opt/jboss-eap-7.0/bin/"
       loop: "{{ server_groups }}"
       ignore_errors: yes
+      register: upload
       when: force == "no"
 
     - name: Remplazar el war en la repo de Jboss
@@ -28,6 +29,7 @@
         chdir: "/opt/jboss-eap-7.0/bin/"
       loop: "{{ server_groups }}"
       ignore_errors: yes
+      register: replace
       when: force == "si"
 
     - name: Asignar el War a sus grupos
@@ -36,7 +38,7 @@
         chdir: "/opt/jboss-eap-7.0/bin/"
       loop: "{{ server_groups }}"
       ignore_errors: yes
-      when: server_groups == "all"
+      when: server_groups == "all" and upload.changed
 
     - name: Deploy war
       shell: "./jboss-cli.sh -c --controller={{ ansible_facts.default_ipv4.address}} --command='deploy --name={{ war | default('hello-world.war') }} --server-groups={{ item }} ' "
@@ -44,7 +46,7 @@
         chdir: "/opt/jboss-eap-7.0/bin/"
       loop: "{{ server_groups }}"
       ignore_errors: yes
-      when: server_groups != "all"
+      when: server_groups != "all" and upload.changed
 
     - name: Clean up
       file:
