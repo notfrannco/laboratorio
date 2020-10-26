@@ -11,7 +11,7 @@
 
 
     - name: Deploy war
-      shell: "./jboss-cli.sh -c --controller={{ ansible_facts.default_ipv4.address}} --command='deploy /deploy/test/{{ war | default('hello-world.war') }} --all-server-groups --force' "
+      shell: "./jboss-cli.sh -c --controller={{ ansible_facts.default_ipv4.address}} --command='deploy /deploy/test/{{ war | default('hello-world.war') }} --all-server-groups ' "
       args:
         chdir: "/opt/jboss-eap-7.0/bin/"
       ignore_errors: yes
