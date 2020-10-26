@@ -18,7 +18,6 @@
       shell: "./jboss-cli.sh -c --controller={{ ansible_facts.default_ipv4.address}} --command='deploy /deploy/test/{{ war | default('hello-world.war') }} --disabled' "
       args:
         chdir: "/opt/jboss-eap-7.0/bin/"
-      loop: "{{ server_groups }}"
       ignore_errors: yes
       register: upload
       when: force == "no"
@@ -27,7 +26,6 @@
       shell: "./jboss-cli.sh -c --controller={{ ansible_facts.default_ipv4.address}} --command='deploy /deploy/test/{{ war | default('hello-world.war') }} --force' "
       args:
         chdir: "/opt/jboss-eap-7.0/bin/"
-      loop: "{{ server_groups }}"
       ignore_errors: yes
       register: replace
       when: force == "si"
