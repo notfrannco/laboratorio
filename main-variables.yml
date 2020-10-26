@@ -1,0 +1,36 @@
+---
+- name: deploy war
+  hosts: master
+  become: true
+  vars:
+    server_groups:
+        - server-group-A
+        - server-group-B
+    force: ""
+  tasks:
+    - name: Traer el war al servidor 
+      get_url:
+        url: http://repo.lab.com/{{ entorno | default('test') }}/{{ war | default('hello-world.war')}}
+        dest: /tmp
+        mode: '0440'
+
+    - name: Replace War
+      shell: "./jboss-cli.sh -c --controller={{ ansible_facts.default_ipv4.address}} --command='deploy /deploy/test/{{ war | default('hello-world.war') }} --force' "
+      args:
+        chdir: "/opt/jboss-eap-7.0/bin/"
+      loop: "{{ server_groups }}"
+      ignore_errors: yes
+      when: force == "si"
+
+    - name: Deploy war
+      shell: "./jboss-cli.sh -c --controller={{ ansible_facts.default_ipv4.address}} --command='deploy /deploy/test/{{ war | default('hello-world.war') }} --server-groups={{ item }} ' "
+      args:
+        chdir: "/opt/jboss-eap-7.0/bin/"
+      loop: "{{ server_groups }}"
+      ignore_errors: yes
+      when: force == "no"
+
+    - name: Clean up
+      file:
+        path: /tmp/{{ war | default('hello-world.war')}}
+        state: absent
