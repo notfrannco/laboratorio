@@ -1,0 +1,1 @@
+deploy /deploy/test/{{ war | default('hello-world.war') }}
