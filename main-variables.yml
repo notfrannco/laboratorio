@@ -14,7 +14,15 @@
         dest: /tmp
         mode: '0440'
 
-    - name: Replace War
+    - name: levantar el war en la Repo de JBoss
+      shell: "./jboss-cli.sh -c --controller={{ ansible_facts.default_ipv4.address}} --command='deploy /deploy/test/{{ war | default('hello-world.war') }} --disabled' "
+      args:
+        chdir: "/opt/jboss-eap-7.0/bin/"
+      loop: "{{ server_groups }}"
+      ignore_errors: yes
+      when: force == "no"
+
+    - name: Remplazar el war en la repo de Jboss
       shell: "./jboss-cli.sh -c --controller={{ ansible_facts.default_ipv4.address}} --command='deploy /deploy/test/{{ war | default('hello-world.war') }} --force' "
       args:
         chdir: "/opt/jboss-eap-7.0/bin/"
@@ -22,13 +30,21 @@
       ignore_errors: yes
       when: force == "si"
 
-    - name: Deploy war
-      shell: "./jboss-cli.sh -c --controller={{ ansible_facts.default_ipv4.address}} --command='deploy /deploy/test/{{ war | default('hello-world.war') }} --server-groups={{ item }} ' "
+    - name: Asignar el War a sus grupos
+      shell: "./jboss-cli.sh -c --controller={{ ansible_facts.default_ipv4.address}} --command='deploy --name={{ war | default('hello-world.war') }} --all-server-groups' "
       args:
         chdir: "/opt/jboss-eap-7.0/bin/"
       loop: "{{ server_groups }}"
       ignore_errors: yes
-      when: force == "no"
+      when: server_groups == "all"
+
+    - name: Deploy war
+      shell: "./jboss-cli.sh -c --controller={{ ansible_facts.default_ipv4.address}} --command='deploy --name={{ war | default('hello-world.war') }} --server-groups=server-group-A,server-group-B ' "
+      args:
+        chdir: "/opt/jboss-eap-7.0/bin/"
+      loop: "{{ server_groups }}"
+      ignore_errors: yes
+      when: server_groups != "all"
 
     - name: Clean up
       file:
