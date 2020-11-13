@@ -1,0 +1,17 @@
+---
+- name: test delegate_to
+  hosts: localhost
+  become: true
+  tasks:
+    - debug: 
+        var: ansible_host
+
+    - debug:
+        var: ansible_connection
+
+    - shell: hostname
+      register: hostname_data
+      delegate_to: localhost
+
+    - debug:
+        var: hostname_data
