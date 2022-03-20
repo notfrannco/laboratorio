@@ -1,0 +1,16 @@
+---
+- name: Copy zip file
+  hosts: all
+  become: true
+  tasks:
+    - name: install openscap
+      yum:
+        name:
+          - openscap
+          - scap-security-guide
+          - openscap-scanner
+        state: latest
+
+    - name: run compliance scan
+      command: insights-client --compliance
+...
